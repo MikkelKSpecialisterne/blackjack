@@ -1,5 +1,5 @@
-import random
-from dataclasses import dataclass
+from Participant import Player, Dealer
+from Deck import Deck
 
 class Game:
     def __init__(self):
@@ -8,85 +8,48 @@ class Game:
         self.new_game()
 
     def new_game(self):
+        self.dealer.hand.clear()
+        self.player.hand.clear()
+        if (self.player.passed==True):
+            self.player.passed=False
         self.deck = Deck()
         self.player.hit(self.deck)
         self.player.hit(self.deck)
         self.dealer.draw(self.deck)
         self.dealer.draw(self.deck)
         while (self.player.passed == False and self.player.hand.value_in_hand < 21):
-            print("")
-            input()
+            print("Dealer hand: "+ self.convert_dealer_hand(self.dealer.hand))
+            print("Your hand: "+ self.convert_player_hand(self.player.hand)+ ". Total value: " + str(self.player.hand.value_in_hand))
+            response = input().lower()
+            if (response == "hit"):
+                self.player.hit(self.deck)
+            elif (response == "stand"):
+                self.player.stand()
+            elif(response == "double"):
+                pass
+            else:
+                print("Please input a valid response. Either hit, stand, or double")
+        if (self.player.hand.value_in_hand<22):
+            self.dealer.play(self.deck)
+        print("Dealer final hand: "+ self.convert_player_hand(self.dealer.hand)+ ". Dealer value: " + str(self.dealer.hand.value_in_hand))
+        print("Your final hand: "+ self.convert_player_hand(self.player.hand)+ ". Final value: " + str(self.player.hand.value_in_hand))
+        self.check_victory()
+        return
 
-    
+    def convert_player_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand))
 
-@dataclass(frozen=True)
-class Card:
-    rank: int
-    suit: str
+    def convert_dealer_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand[1:]))
 
-    def value(self):
-        if self.rank in (11,12,13):
-            return 10
-        if self.rank == (1):
-            return 11
-        return self.rank
-
-class Deck:
-    def __init__(self):
-        suits = ["Hearts", "Clubs", "Diamonds", "Spades"]
-        ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-        self.cards = [Card(rank, suit) for suit in suits for rank in ranks]
-        random.shuffle(self.cards)
-
-    def draw(self):
-        return self.cards.pop()
-
-    @property
-    def remaining_cards(self):
-        return list(self.cards)
-
-class Participant:
-    def __init__(self):
-        self.hand=Hand()
-
-class Player(Participant):
-    def __init__(self):
-        super().__init__()
-        self.money = 500
-        self.passed = False
-
-    def hit(self, deck):
-        self.hand.add_card(deck.draw())
-
-    def stand(self):
-        self.passed = True
-
-class Dealer(Participant):
-    def play(self, deck):
-        while (self.hand.value_in_hand < 17):
-            self.draw(deck)
-    def draw(self, deck):
-        self.hand.add_card(deck.draw())
-
-class Hand:
-    def __init__(self):
-        self.cards=[]
-
-    def add_card(self, card):
-        self.cards.append(card)
-
-    @property
-    def cards_in_hand(self):
-        return list(self.cards)
-
-    @property
-    def value_in_hand(self):
-        cards = [card.value() for card in self.cards]
-        value = sum(cards)
-        aces = sum(1 for card in self.cards if card.rank == 1)
-
-        i=0
-        while (value > 21 and aces>i):
-            value=value-10
-            i=i+1
-        return value
+    def check_victory(self):
+        player = self.player.hand.value_in_hand
+        dealer = self.dealer.hand.value_in_hand
+        if (player>dealer and player < 22 or player < 22 and dealer > 21):
+            print("You win. Congratulations!")
+        elif (dealer>player and dealer < 22 or dealer < 22 and player > 21):
+            print("You lose lmfao.")
+        elif (dealer == player):
+            print("It's a tie.")
+        else:
+            print("Some unforseen outcome happened and I have not accounted for it, so this is also a tie, but I dont really know why or how.")
