@@ -2,12 +2,15 @@ import random
 from dataclasses import dataclass
 
 class Game:
-    pass
+    def __init__(self):
+        self.deck=Deck()
+        self.player=Player()
+        self.dealer=Dealer()
 
 @dataclass(frozen=True)
 class Card:
-    rank = int
-    suit = str
+    rank: int
+    suit: str
 
     def value(self):
         if self.rank in (11,12,13):
@@ -20,25 +23,49 @@ class Deck:
     def __init__(self):
         suits = ["Hearts", "Clubs", "Diamonds", "Spades"]
         ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-        cards = [Card(suit, rank) for suit in suits for rank in ranks]
-        random.shuffle(cards)
+        self.cards = [Card(rank, suit) for suit in suits for rank in ranks]
+        random.shuffle(self.cards)
 
     def draw(self):
         return self.cards.pop()
 
     @property
     def remaining_cards(self):
-        return list(self._cards)
+        return list(self.cards)
 
 class Participant:
-    pass
+    def __init__(self):
+        self.hand=Hand()
 
 class Hand:
-    pass
+    def __init__(self):
+        self.cards=[]
 
-class Player:
-    pass
+    def add_card(self, card):
+        self.cards.append(card)
 
-class Dealer:
-    pass
+    @property
+    def cards_in_hand(self):
+        return list(self.cards)
 
+    @property
+    def value_in_hand(self):
+        cards = [card.value() for card in self.cards]
+        value = sum(cards)
+        aces = sum(1 for card in self.cards if card.rank == 1)
+
+        i=0
+        while (value > 21 and aces>i):
+            value=value-10
+            i=i+1
+        return value
+
+
+class Player(Participant):
+    def hit(self, deck):
+        self.hand.add_card(deck.draw())
+
+class Dealer(Participant):
+    def play(self, deck):
+        while (self.hand.value_in_hand < 17):
+            self.hand.add_card(deck.draw())
