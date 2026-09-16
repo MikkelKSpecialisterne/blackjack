@@ -3,9 +3,21 @@ from dataclasses import dataclass
 
 class Game:
     def __init__(self):
-        self.deck=Deck()
         self.player=Player()
         self.dealer=Dealer()
+        self.new_game()
+
+    def new_game(self):
+        self.deck = Deck()
+        self.player.hit(self.deck)
+        self.player.hit(self.deck)
+        self.dealer.draw(self.deck)
+        self.dealer.draw(self.deck)
+        while (self.player.passed == False and self.player.hand.value_in_hand < 21):
+            print("")
+            input()
+
+    
 
 @dataclass(frozen=True)
 class Card:
@@ -37,6 +49,25 @@ class Participant:
     def __init__(self):
         self.hand=Hand()
 
+class Player(Participant):
+    def __init__(self):
+        super().__init__()
+        self.money = 500
+        self.passed = False
+
+    def hit(self, deck):
+        self.hand.add_card(deck.draw())
+
+    def stand(self):
+        self.passed = True
+
+class Dealer(Participant):
+    def play(self, deck):
+        while (self.hand.value_in_hand < 17):
+            self.draw(deck)
+    def draw(self, deck):
+        self.hand.add_card(deck.draw())
+
 class Hand:
     def __init__(self):
         self.cards=[]
@@ -59,13 +90,3 @@ class Hand:
             value=value-10
             i=i+1
         return value
-
-
-class Player(Participant):
-    def hit(self, deck):
-        self.hand.add_card(deck.draw())
-
-class Dealer(Participant):
-    def play(self, deck):
-        while (self.hand.value_in_hand < 17):
-            self.hand.add_card(deck.draw())
