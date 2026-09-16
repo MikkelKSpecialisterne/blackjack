@@ -1,7 +1,6 @@
 import pygame
-from view import GameView, WIDTH, HEIGHT
-
-# TODO: from model import Game
+from View import GameView, WIDTH, HEIGHT
+from Game import Game
 
 
 class GameController:
@@ -13,8 +12,8 @@ class GameController:
 
         self.view = GameView(self.screen)
         self.running = True
-
-        # TODO: self.game = Game()
+        self.game=Game()
+        self.game.new_game()
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:
@@ -32,7 +31,7 @@ class GameController:
             for event in pygame.event.get():
                 self.handle_event(event)
 
-            # TODO: self.view.draw(self.game)
+            self.view.draw(self.game)
             self.clock.tick(60)
 
         pygame.quit()

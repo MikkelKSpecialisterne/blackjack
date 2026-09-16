@@ -18,5 +18,9 @@ class GameView:
         # TODO: draw dealer's hand
         # TODO: draw player's hand
         # TODO: draw buttons / prompts depending on game state
+        text_surface = self.font.render("Your hand: "+ game.convert_player_hand(game.player.hand)+ ". Total value: " + str(game.player.hand.value_in_hand), True, (255, 255, 255))
+        self.screen.blit(text_surface, (100, 400))
+        text_surface = self.font.render("Dealer hand: "+ game.convert_player_hand(game.dealer.hand)+ ". Total value: " + str(game.dealer.hand.value_in_hand), True, (255, 255, 255))
+        self.screen.blit(text_surface, (100, 50))
 
         pygame.display.flip()

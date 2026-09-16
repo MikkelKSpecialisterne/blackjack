@@ -1,0 +1,112 @@
+from Participant import Player, Dealer
+from Deck import Deck
+
+class Game:
+    def __init__(self):
+        self.player=Player()
+        self.dealer=Dealer()
+
+    def new_game(self):
+        self.dealer.hand.clear()
+        self.player.hand.clear()
+        if (self.player.passed==True):
+            self.player.passed=False
+        self.deck = Deck()
+        self.player.hit(self.deck)
+        self.player.hit(self.deck)
+        self.dealer.draw(self.deck)
+        self.dealer.draw(self.deck)
+        while (self.player.passed == False and self.player.hand.value_in_hand < 21):
+            print("Dealer hand: "+ self.convert_dealer_hand(self.dealer.hand))
+            print("Your hand: "+ self.convert_player_hand(self.player.hand)+ ". Total value: " + str(self.player.hand.value_in_hand))
+            response = input().lower()
+            if (response == "hit"):
+                self.player.hit(self.deck)
+            elif (response == "stand"):
+                self.player.stand()
+            elif(response == "double"):
+                self.player.hit(self.deck)
+                self.player.stand()
+            else:
+                print("Please input a valid response. Either hit, stand, or double")
+        if (self.player.hand.value_in_hand<22):
+            self.dealer.play(self.deck)
+        print("Dealer final hand: "+ self.convert_player_hand(self.dealer.hand)+ ". Dealer value: " + str(self.dealer.hand.value_in_hand))
+        print("Your final hand: "+ self.convert_player_hand(self.player.hand)+ ". Final value: " + str(self.player.hand.value_in_hand))
+        self.check_victory()
+        return
+
+    def convert_player_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand))
+
+    def convert_dealer_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand[1:]))
+
+    def check_victory(self):
+        player = self.player.hand.value_in_hand
+        dealer = self.dealer.hand.value_in_hand
+        if (player>dealer and player < 22 or player < 22 and dealer > 21):
+            print("You win. Congratulations!")
+        elif (dealer>player and dealer < 22 or dealer < 22 and player > 21):
+            print("You lose lmfao.")
+        elif (dealer == player):
+            print("It's a tie.")
+        else:
+            print("Some unforseen outcome happened and I have not accounted for it, so this is also a tie, but I dont really know why or how.")
+
+class TerminalGame:
+    def __init__(self):
+        self.player=Player()
+        self.dealer=Dealer()
+        self.new_game()
+
+    def new_game(self):
+        self.dealer.hand.clear()
+        self.player.hand.clear()
+        if (self.player.passed==True):
+            self.player.passed=False
+        self.deck = Deck()
+        self.player.hit(self.deck)
+        self.player.hit(self.deck)
+        self.dealer.draw(self.deck)
+        self.dealer.draw(self.deck)
+        while (self.player.passed == False and self.player.hand.value_in_hand < 21):
+            print("Dealer hand: "+ self.convert_dealer_hand(self.dealer.hand))
+            print("Your hand: "+ self.convert_player_hand(self.player.hand)+ ". Total value: " + str(self.player.hand.value_in_hand))
+            response = input().lower()
+            if (response == "hit"):
+                self.player.hit(self.deck)
+            elif (response == "stand"):
+                self.player.stand()
+            elif(response == "double"):
+                self.player.hit(self.deck)
+                self.player.stand()
+            else:
+                print("Please input a valid response. Either hit, stand, or double")
+        if (self.player.hand.value_in_hand<22):
+            self.dealer.play(self.deck)
+        print("Dealer final hand: "+ self.convert_player_hand(self.dealer.hand)+ ". Dealer value: " + str(self.dealer.hand.value_in_hand))
+        print("Your final hand: "+ self.convert_player_hand(self.player.hand)+ ". Final value: " + str(self.player.hand.value_in_hand))
+        self.check_victory()
+        return
+
+    def convert_player_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand))
+
+    def convert_dealer_hand(self, hand):
+        return ", ".join(map(str, hand.cards_in_hand[1:]))
+
+    def check_victory(self):
+        player = self.player.hand.value_in_hand
+        dealer = self.dealer.hand.value_in_hand
+        if (player>dealer and player < 22 or player < 22 and dealer > 21):
+            print("You win. Congratulations!")
+        elif (dealer>player and dealer < 22 or dealer < 22 and player > 21):
+            print("You lose lmfao.")
+        elif (dealer == player):
+            print("It's a tie.")
+        else:
+            print("Some unforseen outcome happened and I have not accounted for it, so this is also a tie, but I dont really know why or how.")
+
+if __name__ == "__main__":
+    TerminalGame().new_game()
