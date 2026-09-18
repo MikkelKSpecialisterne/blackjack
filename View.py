@@ -9,9 +9,9 @@ class GameView:
         self.screen = screen
         self.font = pygame.font.SysFont("arial", 22)
 
-        self.hit_button = pygame.Rect(300, 520, 100, 45)
-        self.double_button = pygame.Rect(420, 520, 100, 45)
-        self.stand_button = pygame.Rect(540, 520, 100, 45)
+        self.hit_button = pygame.Rect(300, 720, 100, 45)
+        self.double_button = pygame.Rect(420, 720, 100, 45)
+        self.stand_button = pygame.Rect(540, 720, 100, 45)
         self.new_game_button = pygame.Rect(0, 0, 130, 45)
         self.new_game_button.center = (WIDTH // 2, 400)
         self.betting_box = pygame.Rect(0, 0, 130, 45)
@@ -21,9 +21,6 @@ class GameView:
         """Called once per frame. Take a model object, draw its current state."""
         self.screen.fill((0, 100, 0))
 
-        # TODO: draw dealer's hand
-        # TODO: draw player's hand
-        # TODO: draw buttons / prompts depending on game state
         if game.state == GameState.BETTING:
             pygame.draw.rect(self.screen, (255,255,255), self.betting_box)
             bet_label = self.font.render(game.bet_value, True, (0,0,0))

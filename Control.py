@@ -21,18 +21,20 @@ class GameController:
             return
 
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.running = False
+                return
             if self.game.state == GameState.BETTING:
                 if event.unicode.isdigit() and len(self.game.bet_value)<9:
                     self.game.bet_value += event.unicode
                 elif event.key == pygame.K_BACKSPACE:
                     self.game.bet_value = self.game.bet_value[:-1]
-                elif event.key == pygame.K_RETURN:
-                    if  not self.game.bet_value == "" and int(self.game.bet_value) <= self.game.player.money:
+                elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+                    if  not self.game.bet_value == "" and int(self.game.bet_value) <= self.game.player.money and int(self.game.bet_value) > 0:
                         self.game.new_game()
                         self.game.money_error =False
                     else:
                         self.game.money_error=True
-
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
