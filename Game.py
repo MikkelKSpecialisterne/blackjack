@@ -33,6 +33,8 @@ class Game:
         self.player.hit(self.deck)
         self.dealer.draw(self.deck)
         self.dealer.draw(self.deck)
+        if (self.player.hand.value_in_hand == 21):
+            self.check_victory()
         return
 
     def convert_player_hand(self, hand):
@@ -45,9 +47,13 @@ class Game:
         player = self.player.hand.value_in_hand
         dealer = self.dealer.hand.value_in_hand
         if (player>dealer and player < 22 or player < 22 and dealer > 21):
-            self.victory_text = "You win. Congratulations!"
             if (self.state == GameState.PLAYER_TURN):
-                self.player.money += int(self.bet_value)
+                if self.player.hand.value_in_hand == 21 and len(self.player.hand.cards_in_hand)==2:
+                    self.victory_text = "Blackjack!"
+                    self.player.money += int(round(int(self.bet_value)*1.5))
+                else:
+                    self.victory_text = "You win. Congratulations!"
+                    self.player.money += int(self.bet_value)
         elif (dealer>player and dealer < 22 or dealer < 22 and player > 21):
             if (self.state == GameState.PLAYER_TURN):
                 self.player.money -= int(self.bet_value)
