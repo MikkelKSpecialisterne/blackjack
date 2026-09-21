@@ -17,6 +17,23 @@ class GameView:
         self.betting_box = pygame.Rect(0, 0, 130, 45)
         self.betting_box.center = (WIDTH // 2, 400)
 
+        self.card_images = {}
+        suits = ["Hearts", "Clubs", "Diamonds", "Spades"]
+        ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        card_size = (100,140)
+        for suit in suits:
+            for rank in ranks:
+                path = f"cards/{self.filename_for(rank,suit)}.png"
+                self.card_images[(rank, suit)]= pygame.image.load(path).convert_alpha()
+                image = pygame.image.load(path).convert_alpha()
+                self.card_images[(rank, suit)] = pygame.transform.scale(image, card_size)
+        self.card_back = pygame.image.load(f"cards/Back Red 1.png").convert_alpha()
+        self.card_back = pygame.transform.scale(self.card_back, card_size)
+
+    def filename_for(self,rank,suit):
+        suit_names = {"Hearts": "Hearts", "Clubs": "Clubs", "Diamonds": "Diamond", "Spades": "Spades"}
+        return f"{suit_names[suit]} {rank}"
+
     def draw(self, game):
         """Called once per frame. Take a model object, draw its current state."""
         self.screen.fill((0, 100, 0))
@@ -34,10 +51,17 @@ class GameView:
             self.screen.blit(bet_info_label2, bet_info_label2.get_rect(center=(WIDTH// 2, 450)))
 
         if (game.state == GameState.PLAYER_TURN):
-            dealer_text = self.font.render("Dealer hand: "+ game.convert_dealer_hand(game.dealer.hand), True, (255, 255, 255))
-            self.screen.blit(dealer_text, (150, 50))
-            player_text = self.font.render("Your hand: "+ game.convert_player_hand(game.player.hand)+ ". Total value: " + str(game.player.hand.value_in_hand), True, (255, 255, 255))
-            self.screen.blit(player_text, (150, 600))
+            #dealer_text = self.font.render("Dealer hand: "+ game.convert_dealer_hand(game.dealer.hand), True, (255, 255, 255))
+            #self.screen.blit(dealer_text, (150, 50))
+            self.screen.blit(self.card_back, (300, 100))
+            card = game.dealer.hand.cards_in_hand[1]
+            self.screen.blit(self.card_images[(card.rank, card.suit)], (420, 100))
+            x = 300
+            for card in game.player.hand.cards_in_hand:
+                self.screen.blit(self.card_images[(card.rank, card.suit)], (x, 500))
+                x += 120
+            player_text = self.font.render("Total value: " + str(game.player.hand.value_in_hand), True, (255, 255, 255))
+            self.screen.blit(player_text, player_text.get_rect(centerx=WIDTH // 2, y=670))
             pygame.draw.rect(self.screen, (90, 90, 90), self.hit_button)
             pygame.draw.rect(self.screen, (90, 90, 90), self.double_button)
             pygame.draw.rect(self.screen, (90, 90, 90), self.stand_button)
@@ -54,10 +78,18 @@ class GameView:
         elif (game.state == GameState.ROUND_OVER):
             victory_text = self.font.render(game.victory_text, True, (255,255,255))
             self.screen.blit(victory_text, victory_text.get_rect(center=(WIDTH // 2, 350)))
-            dealer_text = self.font.render("Dealer hand: "+ game.convert_player_hand(game.dealer.hand)+ ". Total value: " + str(game.dealer.hand.value_in_hand), True, (255, 255, 255))
-            self.screen.blit(dealer_text, (150, 50))
-            player_text = self.font.render("Your hand: "+ game.convert_player_hand(game.player.hand)+ ". Total value: " + str(game.player.hand.value_in_hand), True, (255, 255, 255))
-            self.screen.blit(player_text, (150, 600))
+            x = 300
+            for card in game.dealer.hand.cards_in_hand:
+                self.screen.blit(self.card_images[(card.rank, card.suit)], (x, 100))
+                x += 120
+            dealer_text = self.font.render("Total value: " + str(game.dealer.hand.value_in_hand), True, (255, 255, 255))
+            self.screen.blit(dealer_text, dealer_text.get_rect(centerx=WIDTH // 2, y=50))
+            x = 300
+            for card in game.player.hand.cards_in_hand:
+                self.screen.blit(self.card_images[(card.rank, card.suit)], (x, 500))
+                x += 120
+            player_text = self.font.render("Total value: " + str(game.player.hand.value_in_hand), True, (255, 255, 255))
+            self.screen.blit(player_text, player_text.get_rect(centerx=WIDTH // 2, y=670))
             pygame.draw.rect(self.screen, (90,90,90), self.new_game_button)
             new_game_label = self.font.render("New Game", True, (255,255,255))
             self.screen.blit(new_game_label, new_game_label.get_rect(center=self.new_game_button.center))
