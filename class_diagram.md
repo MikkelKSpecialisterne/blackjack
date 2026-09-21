@@ -1,6 +1,3 @@
-# blackjack
-Repository for the BlackJack project
-
 # Blackjack — Class Diagram
 
 ```mermaid
