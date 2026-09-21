@@ -51,8 +51,6 @@ class GameView:
             self.screen.blit(bet_info_label2, bet_info_label2.get_rect(center=(WIDTH// 2, 450)))
 
         if (game.state == GameState.PLAYER_TURN):
-            #dealer_text = self.font.render("Dealer hand: "+ game.convert_dealer_hand(game.dealer.hand), True, (255, 255, 255))
-            #self.screen.blit(dealer_text, (150, 50))
             self.screen.blit(self.card_back, (300, 100))
             card = game.dealer.hand.cards_in_hand[1]
             self.screen.blit(self.card_images[(card.rank, card.suit)], (420, 100))

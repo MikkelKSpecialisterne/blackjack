@@ -33,7 +33,7 @@ class Game:
         self.player.hit(self.deck)
         self.dealer.draw(self.deck)
         self.dealer.draw(self.deck)
-        if (self.player.hand.value_in_hand == 21):
+        if (self.player.hand.value_in_hand == 21 or self.dealer.hand.value_in_hand == 21):
             self.check_victory()
         return
 
@@ -68,6 +68,31 @@ class Game:
             self.victory_text = "Some unforseen outcome happened and I have not accounted for it, so this is also a tie, but I dont really know why or how."
         if (self.state == GameState.PLAYER_TURN):
             self.state = GameState.ROUND_OVER
+
+    def hit(self):
+        self.player.hit(self.deck)
+        self.money_error=False
+
+    def double(self):
+        if int(self.bet_value)*2 <= self.player.money:
+            self.bet_value = str(int(self.bet_value)*2)
+            self.player.hit(self.game.deck)
+            self.player.stand()
+        else:
+            self.money_error=True
+
+    def confirm_bet(self):
+        if  not self.bet_value == "" and int(self.bet_value) <= self.player.money and int(self.bet_value) > 0:
+            self.new_game()
+            self.money_error =False
+        else:
+            self.money_error=True
+
+    def check_round_over(self):
+        if ((self.player.passed or self.player.hand.value_in_hand>21) and self.state == GameState.PLAYER_TURN):
+            if self.player.hand.value_in_hand<22:
+                self.dealer.play(self.deck)
+            self.check_victory()
 
 class TerminalGame:
     def __init__(self):

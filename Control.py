@@ -30,39 +30,25 @@ class GameController:
                 elif event.key == pygame.K_BACKSPACE:
                     self.game.bet_value = self.game.bet_value[:-1]
                 elif event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
-                    if  not self.game.bet_value == "" and int(self.game.bet_value) <= self.game.player.money and int(self.game.bet_value) > 0:
-                        self.game.new_game()
-                        self.game.money_error =False
-                    else:
-                        self.game.money_error=True
+                    self.game.confirm_bet()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
             if self.view.hit_button.collidepoint(pos) and self.game.state == GameState.PLAYER_TURN:
-                self.game.player.hit(self.game.deck)
-                self.game.money_error=False
+                self.game.hit()
             if self.view.double_button.collidepoint(pos) and self.game.state == GameState.PLAYER_TURN:
-                if int(self.game.bet_value)*2 <= self.game.player.money:
-                    self.game.bet_value = str(int(self.game.bet_value)*2)
-                    self.game.player.hit(self.game.deck)
-                    self.game.player.stand()
-                else:
-                    self.game.money_error=True
+                self.game.double()
             if self.view.stand_button.collidepoint(pos) and self.game.state == GameState.PLAYER_TURN:
                 self.game.player.stand()
                 self.game.money_error=False
             if self.view.new_game_button.collidepoint(pos) and self.game.state == GameState.ROUND_OVER:
                 self.game.bet()
-            pass
 
     def run(self):
         while self.running:
             for event in pygame.event.get():
                 self.handle_event(event)
-            if ((self.game.player.passed or self.game.player.hand.value_in_hand>21) and self.game.state == GameState.PLAYER_TURN):
-                if self.game.player.hand.value_in_hand<22:
-                    self.game.dealer.play(self.game.deck)
-                self.game.check_victory()
+            self.game.check_round_over()
             self.view.draw(self.game)
             self.clock.tick(60)
 
