@@ -9,9 +9,15 @@ class Player(Participant):
         super().__init__()
         self.money = 500
         self.passed = False
+        self.bet_value =""
+        self.money_error=False
+        self.round_result = None
+        self.bankrupt = False
 
     def hit(self, deck):
         self.hand.add_card(deck.draw())
+        if self.hand.value_in_hand > 21:
+            self.passed = True
 
     def stand(self):
         self.passed = True

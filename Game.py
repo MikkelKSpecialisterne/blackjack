@@ -3,39 +3,62 @@ from Deck import Deck
 from enum import Enum, auto
 
 class GameState(Enum):
+    PLAYER_SELECT = auto()
     BETTING = auto()
     PLAYER_TURN = auto()
     ROUND_OVER = auto()
 
+class RoundResult(Enum):
+    WIN = auto()
+    BLACKJACK = auto()
+    LOSE = auto()
+    TIE = auto()
+    BANKRUPT = auto()
+    ERROR = auto()
+
 class Game:
     def __init__(self):
-        self.player=Player()
+        self.players=[]
         self.dealer=Dealer()
-        self.state = GameState.PLAYER_TURN
+        self.state = GameState.PLAYER_SELECT
         self.victory_text =""
-        self.bet_value =""
-        self.money_error=False
+        self.player_turn = 0
 
-    def bet(self):
-        self.bet_value = ""
+    def player_amount(self, amount):
+        for i in range(amount):
+            self.players.append(Player())
+
+    def next_player(self):
+        if all(player.passed for player in self.players):
+            self.round_over()
+        else:
+            self.player_turn = (self.player_turn+1) % len(self.players)
+            if self.players[self.player_turn].passed:
+                self.next_player()
+
+    def bet(self, player):
+        player.bet_value = ""
         self.state=GameState.BETTING
-        if self.player.money <= 0:
-            self.player=Player()
 
     def new_game(self):
         self.state=GameState.PLAYER_TURN
         self.dealer.hand.clear()
-        self.player.hand.clear()
-        if (self.player.passed==True):
-            self.player.passed=False
         self.deck = Deck()
-        self.player.hit(self.deck)
-        self.player.hit(self.deck)
+        for p in self.players:
+            p.hand.clear()
+            if (p.passed==True):
+                p.passed=False
+            p.hit(self.deck)
+            p.hit(self.deck)
+        for p in self.players:
+            if (p.hand.value_in_hand == 21):
+                p.passed=True
         self.dealer.draw(self.deck)
         self.dealer.draw(self.deck)
-        if (self.player.hand.value_in_hand == 21 or self.dealer.hand.value_in_hand == 21):
-            self.check_victory()
-        return
+        if self.dealer.hand.value_in_hand == 21:
+            self.round_over()
+        elif self.players[0].passed:
+            self.next_player()
 
     def convert_player_hand(self, hand):
         return ", ".join(map(str, hand.cards_in_hand))
@@ -43,53 +66,66 @@ class Game:
     def convert_dealer_hand(self, hand):
         return ", ".join(map(str, hand.cards_in_hand[1:]))
 
-    def check_victory(self):
-        player = self.player.hand.value_in_hand
+    def check_victory(self,player):
+        p = player.hand.value_in_hand
         dealer = self.dealer.hand.value_in_hand
-        if (player>dealer and player < 22 or player < 22 and dealer > 21):
-            if (self.state == GameState.PLAYER_TURN):
-                if self.player.hand.value_in_hand == 21 and len(self.player.hand.cards_in_hand)==2:
-                    self.victory_text = "Blackjack!"
-                    self.player.money += int(round(int(self.bet_value)*1.5))
-                else:
-                    self.victory_text = "You win. Congratulations!"
-                    self.player.money += int(self.bet_value)
-        elif (dealer>player and dealer < 22 or dealer < 22 and player > 21):
-            if (self.state == GameState.PLAYER_TURN):
-                self.player.money -= int(self.bet_value)
-            if self.player.money > 0:
-                self.victory_text = "You lose lmfao."
+        if (p>dealer and p < 22 or p < 22 and dealer > 21):
+            if p == 21 and len(player.hand.cards_in_hand)==2:
+                player.money += int(round(int(player.bet_value)*1.5))
+                return RoundResult.BLACKJACK
             else:
-                self.victory_text = "You are out of money. You get nothing! You lose! Good day!"
-
-        elif (dealer == player):
-            self.victory_text = "It's a tie."
+                player.money += int(player.bet_value)
+                return RoundResult.WIN
+        elif (dealer>p and dealer < 22 or dealer < 22 and p > 21 or dealer > 21 and p > 21):
+            player.money -= int(player.bet_value)
+            if player.money == 0:
+                player.bankrupt = True
+            return RoundResult.LOSE
+        elif (dealer == p):
+            return RoundResult.TIE
         else:
-            self.victory_text = "Some unforseen outcome happened and I have not accounted for it, so this is also a tie, but I dont really know why or how."
-        if (self.state == GameState.PLAYER_TURN):
-            self.state = GameState.ROUND_OVER
+            return RoundResult.ERROR
 
-    def hit(self):
-        self.player.hit(self.deck)
-        self.money_error=False
+    def hit(self, player):
+        player.hit(self.deck)
+        player.money_error=False
 
-    def double(self):
-        if int(self.bet_value)*2 <= self.player.money:
-            self.bet_value = str(int(self.bet_value)*2)
-            self.player.hit(self.deck)
-            self.player.stand()
+    def double(self, player):
+        if int(player.bet_value)*2 <= player.money:
+            player.bet_value = str(int(player.bet_value)*2)
+            player.hit(self.deck)
+            player.stand()
         else:
-            self.money_error=True
+            player.money_error=True
 
-    def confirm_bet(self):
-        if  not self.bet_value == "" and int(self.bet_value) <= self.player.money and int(self.bet_value) > 0:
-            self.new_game()
-            self.money_error =False
+    def confirm_bet(self, player):
+        if  not player.bet_value == "" and int(player.bet_value) <= player.money and int(player.bet_value) > 0:
+            player.money_error =False
+            if self.player_turn == len(self.players)-1:
+                self.player_turn = 0
+                self.new_game()
+            else: 
+                self.player_turn += 1
         else:
-            self.money_error=True
+            player.money_error=True
 
-    def check_round_over(self):
-        if ((self.player.passed or self.player.hand.value_in_hand>21) and self.state == GameState.PLAYER_TURN):
-            if self.player.hand.value_in_hand<22:
-                self.dealer.play(self.deck)
-            self.check_victory()
+    def round_over(self):
+        if any (player.hand.value_in_hand < 22 for player in self.players):
+            self.dealer.play(self.deck)
+        for i in self.players:
+            i.round_result = self.check_victory(i)
+            i.bet_value = ""
+        self.state = GameState.ROUND_OVER
+        self.player_turn = 0
+
+    def current_player(self):
+        return self.players[self.player_turn]
+
+    def remove_bankrupt(self):
+        for p in self.players.copy():
+            if p.bankrupt == True:
+                self.players.remove(p)
+        if len(self.players) == 0:
+            return False
+        else: 
+            return True
