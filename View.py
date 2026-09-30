@@ -47,9 +47,9 @@ class GameView:
             bet_label = self.font.render(game.current_player().bet_value, True, (0,0,0))
             self.screen.blit(bet_label, (self.betting_box.x+10, self.betting_box.y+10))
             if game.current_player().money_error == False:
-                bet_info_label1 = self.font.render("Player " + str(game.player_turn + 1) + ": Please write the amount you wish to bet, and press 'Enter' to confirm", True, (255, 255, 255))
+                bet_info_label1 = self.font.render("Player " + str(game.players[game.player_turn].id) + ": Please write the amount you wish to bet, and press 'Enter' to confirm", True, (255, 255, 255))
             elif game.current_player().money_error == True:
-                bet_info_label1 = self.font.render("Player " + str(game.player_turn + 1) + ": Error: Not enough money, or no value written. Please enter a valid amount", True, (255, 255, 255))
+                bet_info_label1 = self.font.render("Player " + str(game.players[game.player_turn].id) + ": Error: Not enough money, or no value written. Please enter a valid amount", True, (255, 255, 255))
             bet_info_label2 = self.font.render("Current balance: "+ str(game.current_player().money), True, (255, 255, 255))
             self.screen.blit(bet_info_label1, bet_info_label1.get_rect(center=(WIDTH// 2, 350)))
             self.screen.blit(bet_info_label2, bet_info_label2.get_rect(center=(WIDTH// 2, 450)))
@@ -59,7 +59,7 @@ class GameView:
             self.screen.blit(self.card_back, (400, 100))
             card = game.dealer.hand.cards_in_hand[1]
             self.screen.blit(self.card_images[(card.rank, card.suit)], (520, 100))
-            turn_label = self.font.render("Player " + str(game.player_turn + 1) + "'s turn", True, (255, 255, 255))
+            turn_label = self.font.render("Player " + str(game.players[game.player_turn].id) + "'s turn", True, (255, 255, 255))
             self.screen.blit(turn_label, turn_label.get_rect(centerx=WIDTH // 2, y=440))
             x = 100
             for p in game.players:

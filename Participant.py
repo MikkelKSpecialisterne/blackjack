@@ -5,8 +5,9 @@ class Participant:
         self.hand=Hand()
 
 class Player(Participant):
-    def __init__(self):
+    def __init__(self, id):
         super().__init__()
+        self.id = id
         self.money = 500
         self.passed = False
         self.bet_value =""

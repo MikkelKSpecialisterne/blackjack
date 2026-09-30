@@ -26,7 +26,7 @@ class Game:
 
     def player_amount(self, amount):
         for i in range(amount):
-            self.players.append(Player())
+            self.players.append(Player(i+1))
 
     def next_player(self):
         if all(player.passed for player in self.players):
