@@ -39,8 +39,13 @@ classDiagram
     }
 
     class Player {
+        +int id
         +int money
         +bool passed
+        +str bet_value
+        +bool money_error
+        +RoundResult round_result
+        +bool bankrupt
         +hit(deck)
         +stand()
     }
@@ -52,26 +57,39 @@ classDiagram
 
     class GameState {
         <<enumeration>>
+        PLAYER_SELECT
         BETTING
         PLAYER_TURN
         ROUND_OVER
     }
 
+    class RoundResult {
+        <<enumeration>>
+        WIN
+        BLACKJACK
+        LOSE
+        TIE
+        BANKRUPT
+        ERROR
+    }
+
     class Game {
-        +Player player
+        +list~Player~ players
         +Dealer dealer
         +Deck deck
         +GameState state
-        +str victory_text
-        +str bet_value
-        +bool money_error
-        +bet()
+        +int player_turn
+        +player_amount(amount)
+        +next_player()
+        +bet(player)
         +new_game()
-        +hit()
-        +double()
-        +confirm_bet()
-        +check_round_over()
-        +check_victory()
+        +hit(player)
+        +double(player)
+        +confirm_bet(player)
+        +check_victory(player) RoundResult
+        +round_over()
+        +current_player() Player
+        +remove_bankrupt() bool
         +convert_player_hand(hand) str
         +convert_dealer_hand(hand) str
     }
@@ -104,11 +122,13 @@ classDiagram
     Participant "1" *-- "1" Hand
     Player --|> Participant
     Dealer --|> Participant
-    Game "1" *-- "1" Player
+    Game "1" *-- "0..4" Player : players
     Game "1" *-- "1" Dealer
     Game "1" *-- "1" Deck
     Game ..> GameState : uses
+    Game ..> RoundResult : returns
     GameController "1" *-- "1" Game
     GameController "1" *-- "1" GameView
     GameView ..> GameState : uses
+    GameView ..> RoundResult : uses
 ```

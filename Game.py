@@ -84,7 +84,7 @@ class Game:
         elif (dealer == p):
             return RoundResult.TIE
         else:
-            return RoundResult.ERROR
+            return RoundResult.ERROR # pragma: no cover
 
     def hit(self, player):
         player.hit(self.deck)
